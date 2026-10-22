@@ -3608,6 +3608,7 @@ class StockAnalysisPipeline:
         # 保存报告到本地文件（无论是否推送通知都保存）
         if results and not dry_run:
             self._save_local_report(results, report_type)
+            self._export_web_json(results)
 
         # 发送通知（单股推送模式下跳过汇总推送，避免重复）
         if results and send_notification and not dry_run:
@@ -3731,6 +3732,47 @@ class StockAnalysisPipeline:
                 )
                 logger.error(f"[{stock_code}] 单股推送异常: {e}")
 
+
+    def _export_web_json(self, results: List[AnalysisResult]) -> None:
+        """导出给前端网页用的 JSON 文件"""
+        import json
+        from pathlib import Path
+
+        web_data = []
+        for res in results:
+            if not res.success:
+                continue
+            
+            # 提取购买点位
+            buy_point = "N/A"
+            try:
+                sniper = res.dashboard.get("battle_plan", {}).get("sniper_points", {})
+                if isinstance(sniper, dict):
+                    buy_point = sniper.get("buy_price") or sniper.get("entry_price") or "N/A"
+            except Exception:
+                pass
+
+            web_data.append({
+                "code": res.code,
+                "name": res.name,
+                "score": res.sentiment_score,
+                "advice": res.operation_advice,
+                "trend": res.trend_prediction,
+                "buy_point": buy_point,
+                "conclusion": res.dashboard.get("core_conclusion", {}).get("one_sentence", ""),
+                "raw": res.dashboard 
+            })
+            
+        # 存到 docs 文件夹
+        docs_dir = Path(__file__).resolve().parents[2] / 'docs'
+        docs_dir.mkdir(parents=True, exist_ok=True)
+        json_path = docs_dir / 'data.json'
+        
+        with open(json_path, 'w', encoding='utf-8') as f:
+            json.dump(web_data, f, ensure_ascii=False, indent=2)
+        logger.info(f"Web JSON 数据已导出: {json_path}")
+
+    
     def _save_local_report(
         self,
         results: List[AnalysisResult],
