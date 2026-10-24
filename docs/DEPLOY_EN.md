@@ -436,18 +436,19 @@ git push
 
 ### Schedule Details
 
-Default configuration: **Monday to Friday, 18:00 Beijing Time** auto-execution
+Default configuration: **Monday to Friday, 20:00 Beijing Time** auto-execution (about 1.5-2.5 hours before US market open)
 
 Modify time: Edit cron expression in `.github/workflows/00-daily-analysis.yml`:
 
 ```yaml
 schedule:
-  - cron: '0 10 * * 1-5'  # UTC time, +8 = Beijing time
+  - cron: '0 12 * * 1-5'  # UTC time, +8 = Beijing time
 ```
 
 Common cron examples:
 | Expression | Description |
 |--------|------|
+| `'0 12 * * 1-5'` | Mon-Fri 20:00 (Beijing, before US open) |
 | `'0 10 * * 1-5'` | Mon-Fri 18:00 (Beijing) |
 | `'30 7 * * 1-5'` | Mon-Fri 15:30 (Beijing) |
 | `'0 10 * * *'` | Daily 18:00 (Beijing) |

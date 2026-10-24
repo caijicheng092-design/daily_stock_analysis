@@ -1,9 +1,9 @@
 name: 每日股票分析
 
 on:
-  # 定时触发 - 每天北京时间 18:00 (UTC 10:00)
+  # 定时触发 - 周一至周五北京时间 20:00 (UTC 12:00)，约在美股开盘前 1.5~2.5 小时
   schedule:
-    - cron: '0 10 * * 1-5'     # 周一到周五，UTC 10:00 = 北京时间 18:00
+    - cron: '0 12 * * 1-5'     # 周一到周五，UTC 12:00 = 北京时间 20:00
   
   # 手动触发
   workflow_dispatch:
@@ -31,6 +31,9 @@ concurrency:
 jobs:
   analyze:
     runs-on: ubuntu-latest
+    # 发布报告到 Release 需要 GITHUB_TOKEN 的写权限
+    permissions:
+      contents: write
     # 兼容误将 STOCK_LIST 配到同名 Environment variables 的场景；
     # 推荐位置仍是 Settings -> Secrets and variables -> Actions -> Repository variables。
     environment: STOCK_LIST
@@ -569,6 +572,22 @@ jobs:
             reports/
             logs/
           retention-days: 30
+      
+      - name: 发布报告到 Release（供本地同步）
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # 滚动 Release（tag: reports），供本地同步脚本按日期拉取报告附件
+          gh release view reports >/dev/null 2>&1 || \
+            gh release create reports --title "每日分析报告" --notes "由每日股票分析工作流自动更新"
+          shopt -s nullglob
+          files=(reports/*.md)
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "未找到报告文件，跳过发布"
+            exit 0
+          fi
+          gh release upload reports "${files[@]}" --clobber
       
       - name: 显示运行结果
         if: always()
