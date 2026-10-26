@@ -480,9 +480,11 @@ git push
 
 ### 定时说明
 
-默认配置：**周一到周五，北京时间 20:00** 自动执行（约在美股开盘前 1.5~2.5 小时）
+默认配置：**仅手动触发**（本 fork 已关闭定时执行；上游默认为周一到周五北京时间 20:00 自动执行）
 
-修改时间：编辑 `.github/workflows/00-daily-analysis.yml` 中的 cron 表达式：
+手动运行：`Actions` → `每日股票分析` → `Run workflow`；非交易日需把 `force_run` 勾成 `true`。
+
+如需恢复定时，取消 workflow 中 `schedule` 两行的注释：
 
 ```yaml
 schedule:

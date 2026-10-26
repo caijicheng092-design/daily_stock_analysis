@@ -436,9 +436,11 @@ git push
 
 ### Schedule Details
 
-Default configuration: **Monday to Friday, 20:00 Beijing Time** auto-execution (about 1.5-2.5 hours before US market open)
+Default configuration: **manual trigger only** (this fork disabled the schedule; upstream defaults to Mon-Fri 20:00 Beijing Time)
 
-Modify time: Edit cron expression in `.github/workflows/00-daily-analysis.yml`:
+Manual run: `Actions` → `每日股票分析` → `Run workflow`; set `force_run` to `true` on non-trading days.
+
+To restore the schedule, uncomment the `schedule` lines in the workflow:
 
 ```yaml
 schedule:

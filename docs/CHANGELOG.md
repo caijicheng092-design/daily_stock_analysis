@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- 每条独立一行追加到本段末尾，无需分类标题，合并时冲突最小 -->
 - [修复] Telegram 推送按 UTF-16 长度判断与分段，修复含大量 emoji 的报告超出 4096 限制导致发送失败的问题。
 - [改进] 每日股票分析工作流改为周一至周五北京时间 20:00（美股开盘前）触发，并将当日报告发布到 `reports` Release，供本地脚本按日期同步。
+- [改进] 每日股票分析改为仅手动触发（注释掉 `schedule`），保留 `workflow_dispatch` 与 `reports` Release 发布，供本地手动下载。
 
 ## [3.33.0] - 2026-10-15
 
